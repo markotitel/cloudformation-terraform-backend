@@ -1,0 +1,34 @@
+Parameters:
+  S3BucketNamePrefix:
+    Type: String
+    Default: cloudplumber2000
+
+Resources:
+  TerraformState:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      BucketName: !Sub "${S3BucketNamePrefix}-terraform-state"
+      LifecycleConfiguration:
+        Rules:
+         - Id: "IncompleteUploads"
+           Status: Enabled
+           AbortIncompleteMultipartUpload:
+             DaysAfterInitiation: "1"
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true 
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: "Billing"
+          Value: "Storage"
+      VersioningConfiguration:
+        Status: Enabled
